@@ -1,24 +1,85 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Question from "./components/Questions";
+import Timer from "./components/Timer";
+import Summary from "./components/Summary";
+
+const API_URL = "https://scs-interview-api.herokuapp.com/questions";
 
 function App() {
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [showSummary, setShowSummary] = useState(false);
+  const [timerKey, setTimerKey] = useState(0);
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const response = await axios.get(API_URL);
+        setQuestions(response.data);
+      } catch (error) {
+        setApiError("Error fetching questions from the API.");
+      }
+    };
+
+    fetchQuestions();
+  }, []);
+
+  const handleAnswerSelected = (isCorrect: boolean) => {
+    if (isCorrect) {
+      setCorrectAnswers((prev) => prev + 1);
+    }
+    setTimeout(() => {
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex((prev) => prev + 1);
+        setTimerKey((prev) => prev + 1);
+      } else {
+        setShowSummary(true);
+      }
+    }, 1000);
+  };
+
+  const handlePlayAgain = () => {
+    setCurrentQuestionIndex(0);
+    setCorrectAnswers(0);
+    setShowSummary(false);
+    setTimerKey((prev) => prev + 1);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="max-w-lg w-full rounded-lg shadow-lg p-4 rounded-lg ring-1 ring-slate-900/5 shadow-xl">
+        {apiError ? (
+          <div className="text-red-600 font-semibold">{apiError}</div>
+        ) : currentQuestionIndex < questions.length && !showSummary ? (
+          <div>
+            <Timer
+              key={timerKey}
+              durationInSeconds={questions[currentQuestionIndex].time}
+              onTimeElapsed={() => {
+                if (currentQuestionIndex < questions.length - 1) {
+                  setCurrentQuestionIndex((prev) => prev + 1);
+                  setTimerKey((prev) => prev + 1);
+                } else {
+                  setShowSummary(true);
+                }
+              }}
+            />
+            <Question
+              questionData={questions[currentQuestionIndex]}
+              onAnswerSelected={handleAnswerSelected}
+            />
+          </div>
+        ) : (
+          <Summary
+            totalQuestions={questions.length}
+            correctAnswers={correctAnswers}
+            onPlayAgain={handlePlayAgain}
+          />
+        )}
+      </div>
     </div>
   );
 }
