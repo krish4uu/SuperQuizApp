@@ -3,6 +3,7 @@ import axios from "axios";
 import Question from "./components/Questions";
 import Timer from "./components/Timer";
 import Summary from "./components/Summary";
+import Navbar from "./components/Navbar";
 
 const API_URL = "https://scs-interview-api.herokuapp.com/questions";
 
@@ -13,8 +14,14 @@ function App() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [showSummary, setShowSummary] = useState(false);
   const [timerKey, setTimerKey] = useState(0);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
+    const savedDarkMode = localStorage.getItem("darkMode");
+    if (savedDarkMode) {
+      setDarkMode(JSON.parse(savedDarkMode));
+    }
+
     const fetchQuestions = async () => {
       try {
         const response = await axios.get(API_URL);
@@ -26,6 +33,12 @@ function App() {
 
     fetchQuestions();
   }, []);
+
+  const toggleDarkMode = () => {
+    setDarkMode((prevDarkMode) => !prevDarkMode);
+
+    localStorage.setItem("darkMode", JSON.stringify(!darkMode));
+  };
 
   const handleAnswerSelected = (isCorrect: boolean) => {
     if (isCorrect) {
@@ -48,11 +61,18 @@ function App() {
     setTimerKey((prev) => prev + 1);
   };
 
+  const themeClass = darkMode ? "bg-gray-900" : "bg-white";
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-lg w-full rounded-lg shadow-lg p-4 rounded-lg ring-1 ring-slate-900/5 shadow-xl">
+    <div
+      className={`min-h-screen flex items-center justify-center text-black mb-0 pb-0 ${themeClass}`}
+    >
+      <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+      <div
+        className={`container mx-auto max-w-lg rounded-lg shadow-lg p-4 rounded-lg ring-1 ring-slate-900/5 shadow-xl ${themeClass}`}
+      >
         {apiError ? (
-          <div className="text-red-600 font-semibold">{apiError}</div>
+          <div className={`text-red-600 font-semibold`}>{apiError}</div>
         ) : currentQuestionIndex < questions.length && !showSummary ? (
           <div>
             <Timer
