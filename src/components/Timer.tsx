@@ -22,7 +22,7 @@ const Timer: React.FC<TimerProps> = ({ durationInSeconds, onTimeElapsed }) => {
   }, [secondsRemaining, onTimeElapsed]);
 
   return (
-    <div className="bg-white p-4 rounded shadow-md">
+    <div className="bg-white p-4 rounded-t-lg shadow-md">
       {error ? (
         <div className="text-red-600 font-semibold">{error}</div>
       ) : (

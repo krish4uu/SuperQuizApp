@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 interface QuestionProps {
   questionData: {
@@ -11,45 +11,72 @@ interface QuestionProps {
   onAnswerSelected: (isCorrect: boolean) => void;
 }
 
-const Question: React.FC<QuestionProps> = ({ questionData, onAnswerSelected }) => {
+const Question: React.FC<QuestionProps> = ({
+  questionData,
+  onAnswerSelected,
+}) => {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [displayAnswer, setDisplayAnswer] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { answer, imageUrl, options, question, time } = questionData;
 
   useEffect(() => {
     setSelectedOption(null);
     setError(null);
+    setDisplayAnswer(null);
   }, [questionData]);
 
   const handleOptionSelect = (index: number) => {
     setSelectedOption(index);
-    const isCorrect = index === questionData.answer;
+    const isCorrect = index === answer;
     onAnswerSelected(isCorrect);
+    if (!isCorrect) {
+      setDisplayAnswer(true);
+    }
   };
 
   return (
-    <div className="p-4 rounded shadow-md">
+    <div className="p-4 rounded-b-lg shadow-md bg-gray-50">
       {error ? (
         <div className="text-red-600 font-semibold">{error}</div>
       ) : (
         <>
-          <img src={questionData.imageUrl} alt="Question"/>
-          <h2 className="text-lg font-semibold p-4">{questionData.question}</h2>
+          <div className="md:max-w-md">
+            <img src={imageUrl} alt="Question" className="max-w-full h-auto" />
+          </div>
+          <h2 className="text-lg font-semibold p-4">{question}</h2>
           <ul>
-            {questionData.options.map((option, index) => (
-              <li
-                key={index}
-                onClick={() => handleOptionSelect(index)}
-                className={`p-2 border rounded cursor-pointer ${
-                  selectedOption === index
-                    ? index === questionData.answer
-                      ? 'bg-green-200'
-                      : 'bg-red-200'
-                    : 'bg-white hover:bg-gray-100'
-                }`}
-              >
-                {option}
-              </li>
-            ))}
+            {options.map((option, index) => {
+              const isSelected = selectedOption === index;
+              const isCorrect = index === answer;
+              let optionClasses = "";
+
+              if (isSelected) {
+                if (isCorrect) {
+                  optionClasses += "bg-green-500 text-white"; // Selected and correct
+                } else {
+                  optionClasses += "bg-red-500 text-white"; // Selected and incorrect
+                }
+              } 
+
+              return (
+                <li
+                  key={index}
+                  onClick={() => handleOptionSelect(index)}
+                  className={`p-2 rounded-lg mb-2 cursor-pointer border ${
+                    displayAnswer && isCorrect ? "bg-green-500 text-white" : optionClasses
+                  }`}
+                >
+                  {(displayAnswer || isSelected) && isCorrect && (
+                    <span className="text-white font-bold p-4">&#10003;</span> // Checkmark symbol for correct
+                  )}
+                  {isSelected && !isCorrect && (
+                    <span className="text-white font-bold p-4">&#10007;</span> // Checkmark symbol for incorrect
+                  )}
+                  {option}
+                </li>
+              );
+            })}
           </ul>
         </>
       )}
