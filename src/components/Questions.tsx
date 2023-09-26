@@ -41,8 +41,8 @@ const Question: React.FC<QuestionProps> = ({
         <div className="text-red-600 font-semibold">{error}</div>
       ) : (
         <>
-          <div className="md:max-w-md">
-            <img src={imageUrl} alt="Question" className="max-w-full h-auto" />
+          <div className="md:max-w-md flex justify-center item-center">
+            <img src={imageUrl} alt="Question" className="max-w-xs h-1/5" />
           </div>
           <h2 className="text-lg font-semibold p-4">{question}</h2>
           <ul>

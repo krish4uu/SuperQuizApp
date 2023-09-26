@@ -64,43 +64,45 @@ function App() {
   const themeClass = darkMode ? "bg-gray-900" : "bg-white";
 
   return (
-    <div
-      className={`min-h-screen flex items-center justify-center text-black mb-0 pb-0 ${themeClass}`}
-    >
-      <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+    <>
       <div
-        className={`container mx-auto max-w-lg rounded-lg shadow-lg p-4 rounded-lg ring-1 ring-slate-900/5 shadow-xl ${themeClass}`}
+        className={`min-h-screen overflow-y-hidden flex items-center justify-center text-black m-0 p-0  ${themeClass}`}
       >
-        {apiError ? (
-          <div className={`text-red-600 font-semibold`}>{apiError}</div>
-        ) : currentQuestionIndex < questions.length && !showSummary ? (
-          <div>
-            <Timer
-              key={timerKey}
-              durationInSeconds={questions[currentQuestionIndex].time}
-              onTimeElapsed={() => {
-                if (currentQuestionIndex < questions.length - 1) {
-                  setCurrentQuestionIndex((prev) => prev + 1);
-                  setTimerKey((prev) => prev + 1);
-                } else {
-                  setShowSummary(true);
-                }
-              }}
+        <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+        <div
+          className={`container mx-auto max-w-lg rounded-lg shadow-lg p-4 rounded-lg ring-1 ring-slate-900/5 shadow-xl ${themeClass}`}
+        >
+          {apiError ? (
+            <div className={`text-red-600 font-semibold`}>{apiError}</div>
+          ) : currentQuestionIndex < questions.length && !showSummary ? (
+            <>
+              <Timer
+                key={timerKey}
+                durationInSeconds={questions[currentQuestionIndex].time}
+                onTimeElapsed={() => {
+                  if (currentQuestionIndex < questions.length - 1) {
+                    setCurrentQuestionIndex((prev) => prev + 1);
+                    setTimerKey((prev) => prev + 1);
+                  } else {
+                    setShowSummary(true);
+                  }
+                }}
+              />
+              <Question
+                questionData={questions[currentQuestionIndex]}
+                onAnswerSelected={handleAnswerSelected}
+              />
+            </>
+          ) : (
+            <Summary
+              totalQuestions={questions.length}
+              correctAnswers={correctAnswers}
+              onPlayAgain={handlePlayAgain}
             />
-            <Question
-              questionData={questions[currentQuestionIndex]}
-              onAnswerSelected={handleAnswerSelected}
-            />
-          </div>
-        ) : (
-          <Summary
-            totalQuestions={questions.length}
-            correctAnswers={correctAnswers}
-            onPlayAgain={handlePlayAgain}
-          />
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
